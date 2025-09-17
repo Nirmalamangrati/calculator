@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300"
+  >
+    <div
+      id="calculator"
+      class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl w-80 transition-colors duration-300"
+    >
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2
+          id="title"
+          class="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors duration-300"
+        >
+          Calculator
+        </h2>
+        <button
+          id="darkToggle"
+          class="px-3 py-1 rounded-full text-sm bg-gray-300 dark:bg-gray-600 text-black dark:text-white transition-colors duration-300"
+        >
+          🌙
+        </button>
+      </div>
+
+      <!-- Display -->
+      <input
+        type="text"
+        id="display"
+        disabled
+        class="w-full h-16 text-right text-3xl p-4 mb-6 border rounded-xl border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white transition-colors duration-300"
+        placeholder="0"
+      />
+
+      <!-- Buttons Grid -->
+      <div class="grid grid-cols-4 gap-3">
+        <!-- Top row -->
+        <button id="btnClear" class="py-4 rounded-xl text-lg transition">
+          C
+        </button>
+        <button class="btnNum">(</button>
+        <button class="btnNum">)</button>
+        <button class="btnOp">/</button>
+
+        <!-- Second row -->
+        <button class="btnNum">7</button>
+        <button class="btnNum">8</button>
+        <button class="btnNum">9</button>
+        <button class="btnOp">*</button>
+
+        <!-- Third row -->
+        <button class="btnNum">4</button>
+        <button class="btnNum">5</button>
+        <button class="btnNum">6</button>
+        <button class="btnOp">-</button>
+
+        <!-- Fourth row -->
+        <button class="btnNum">1</button>
+        <button class="btnNum">2</button>
+        <button class="btnNum">3</button>
+        <button class="btnOp">+</button>
+
+        <!-- Fifth row -->
+        <button class="btnNum col-span-2">0</button>
+        <button class="btnNum">.</button>
+        <button class="btnOp">=</button>
+
+        <!-- Extra buttons row -->
+        <button class="btnOp">%</button>
+        <button class="btnOp">±</button>
+        <button class="btnNum">{</button>
+        <button class="btnNum">}</button>
+      </div>
+    </div>
+
+    <script>
+      const display = document.getElementById("display");
+      const darkToggle = document.getElementById("darkToggle");
+      const calculator = document.getElementById("calculator");
+      const btnClear = document.getElementById("btnClear");
+      const btnNums = document.querySelectorAll(".btnNum");
+      const btnOps = document.querySelectorAll(".btnOp");
+
+      // Light/Dark Mode Styles
+      function setLightMode() {
+        calculator.className =
+          "bg-white p-6 rounded-2xl shadow-2xl w-80 transition-colors duration-300";
+        display.className =
+          "w-full h-16 text-right text-3xl p-4 mb-6 border rounded-xl border-gray-300 bg-white text-black transition-colors duration-300";
+        btnClear.className =
+          "bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl text-lg transition";
+        btnNums.forEach(
+          (btn) =>
+            (btn.className =
+              "bg-gray-200 hover:bg-gray-300 py-4 rounded-xl text-lg transition")
+        );
+        btnOps.forEach(
+          (btn) =>
+            (btn.className =
+              "bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl text-lg transition")
+        );
+      }
+
+      function setDarkMode() {
+        calculator.className =
+          "bg-gray-800 p-6 rounded-2xl shadow-2xl w-80 transition-colors duration-300";
+        display.className =
+          "w-full h-16 text-right text-3xl p-4 mb-6 border rounded-xl border-gray-700 bg-gray-700 text-white transition-colors duration-300";
+        btnClear.className =
+          "bg-red-700 hover:bg-red-800 text-white py-4 rounded-xl text-lg transition";
+        btnNums.forEach(
+          (btn) =>
+            (btn.className =
+              "bg-gray-700 hover:bg-gray-600 py-4 rounded-xl text-lg transition")
+        );
+        btnOps.forEach(
+          (btn) =>
+            (btn.className =
+              "bg-orange-700 hover:bg-orange-800 text-white py-4 rounded-xl text-lg transition")
+        );
+      }
+
+      setLightMode(); // Initial mode
+
+      // Append numbers or brackets
+      btnNums.forEach((btn) => {
+        btn.addEventListener("click", () => appendValue(btn.textContent));
+      });
+
+      // Operators and equals
+      btnOps.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const value = btn.textContent;
+          if (value === "=") calculateResult();
+          else if (value === "±") toggleSign();
+          else if (value === "%") appendValue("%");
+          else appendValue(value);
+        });
+      });
+
+      btnClear.addEventListener("click", () => (display.value = ""));
+
+      function appendValue(value) {
+        if (display.value === "0") display.value = "";
+        display.value += value;
+      }
+
+      function toggleSign() {
+        if (display.value.startsWith("-"))
+          display.value = display.value.slice(1);
+        else display.value = "-" + display.value;
+      }
+
+      function calculateResult() {
+        try {
+          let expr = display.value
+            .replace(/\{/g, "(")
+            .replace(/\}/g, ")")
+            .replace(/\[/g, "(")
+            .replace(/\]/g, ")")
+            .replace(/%/g, "/100");
+          display.value = eval(expr) || 0;
+        } catch {
+          alert("Invalid Expression");
+        }
+      }
+
+      // Dark/Light Mode Toggle
+      darkToggle.addEventListener("click", () => {
+        if (document.body.classList.contains("dark")) {
+          document.body.classList.remove("dark");
+          darkToggle.textContent = "🌙";
+          setLightMode();
+        } else {
+          document.body.classList.add("dark");
+          darkToggle.textContent = "☀️";
+          setDarkMode();
+        }
+      });
+    </script>
+  </body>
+</html>
